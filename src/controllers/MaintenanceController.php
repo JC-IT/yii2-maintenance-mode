@@ -56,7 +56,7 @@ class MaintenanceController extends Controller
     {
         if ($status = $maintenanceMode->get()) {
             if (!empty($status['messages'])) {
-                $messages = "with messages:" . implode(PHP_EOL, array_map(function ($key, $value) {
+                $messages = "with messages:" . PHP_EOL . implode(PHP_EOL, array_map(function ($key, $value) {
                         $datetime = date('d-m-Y H:i:s', $key);
                         return Console::ansiFormat("- ({$datetime}): {$value}", [Console::FG_YELLOW]);
                     }, array_keys($status['messages']), $status['messages']));
@@ -72,7 +72,7 @@ class MaintenanceController extends Controller
                 '{messages}' => $messages,
             ]);
         } else {
-            echo strtr("Maintenance mode is currently {maintenanceStatus}, the platform should be {platformStatus}\n", [
+            echo strtr("Maintenance mode is currently {maintenanceStatus}, the platform should be {platformStatus}.\n", [
                 '{maintenanceStatus}' => Console::ansiFormat("NOT ACTIVE", [Console::FG_RED]),
                 '{platformStatus}' => Console::ansiFormat("REACHABLE", [Console::FG_GREEN])
             ]);

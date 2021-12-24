@@ -80,6 +80,9 @@ class MaintenanceMode implements BootstrapInterface
 
         $this->cache->set(self::MAINTENANCE_MODE, $this->cache->get(self::MAINTENANCE_MODE), $duration);
         $this->cache->set(self::MAINTENANCE_MODE_DURATION, $duration);
+        if ($this->cache->exists(self::MAINTENANCE_MODE_MESSAGES)) {
+            $this->cache->set(self::MAINTENANCE_MODE_MESSAGES, $this->cache->get(self::MAINTENANCE_MODE_MESSAGES), $duration);
+        }
     }
 
     public function get(): array|bool
@@ -88,10 +91,10 @@ class MaintenanceMode implements BootstrapInterface
             return false;
         }
 
-        $start = $this->cache->exists(self::MAINTENANCE_MODE);
+        $start = $this->cache->get(self::MAINTENANCE_MODE);
         return [
             'from' => $start,
-            'until' => $this->cache->exists(self::MAINTENANCE_MODE_DURATION) ? $start->clone()->addSeconds($this->cache->get(self::MAINTENANCE_MODE_DURATION)) : null,
+            'until' => $this->cache->exists(self::MAINTENANCE_MODE_DURATION) ? ($start + $this->cache->get(self::MAINTENANCE_MODE_DURATION)) : null,
             'duration' => $this->cache->get(self::MAINTENANCE_MODE_DURATION),
             'messages' => $this->cache->get(self::MAINTENANCE_MODE_MESSAGES),
         ];
@@ -105,6 +108,10 @@ class MaintenanceMode implements BootstrapInterface
 
         $messages = $this->cache->exists(self::MAINTENANCE_MODE_MESSAGES) ? $this->cache->get(self::MAINTENANCE_MODE_MESSAGES) : [];
         $messages[time()] = $message;
-        $this->cache->set(self::MAINTENANCE_MODE_MESSAGES, $messages);
+        $this->cache->set(
+            self::MAINTENANCE_MODE_MESSAGES,
+            $messages,
+            $this->cache->exists(self::MAINTENANCE_MODE_DURATION) ? $this->cache->get(self::MAINTENANCE_MODE_DURATION) : null
+        );
     }
 }
