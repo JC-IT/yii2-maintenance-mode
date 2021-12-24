@@ -1,0 +1,53 @@
+{
+    "name": "jc-it/yii2-maintenance-mode",
+    "description": "Maintenance mode implementation for Yii2",
+    "type": "yii2-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joey Claessen",
+            "email": "joey_claessen@hotmail.com",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+
+        "yiisoft/yii2": "~2.0.42"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "JCIT\\maintenance\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JCIT\\maintenance\\tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": "cghooks add --ignore-lock",
+        "test": "vendor/bin/codecept run --coverage",
+        "lint": "vendor/bin/phpcs",
+        "lint-fix": "vendor/bin/phpcbf"
+    },
+    "extra": {
+        "hooks": {
+            "pre-commit": [
+                "echo committing as $(git config user.name) &&",
+                "composer lint-fix  &&",
+                "composer lint &&",
+                "composer test"
+            ],
+            "commit-msg": [
+                "npx commitlint -e"
+            ]
+        }
+    }
+}
