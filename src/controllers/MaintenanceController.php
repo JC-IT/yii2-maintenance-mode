@@ -1,34 +1,52 @@
 <?php
+
 declare(strict_types=1);
 
 namespace JCIT\maintenance\controllers;
 
 use JCIT\maintenance\components\MaintenanceMode;
+use yii\base\InvalidArgumentException;
 use yii\console\Controller;
 use yii\console\ExitCode;
 use yii\di\Instance;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 
 class MaintenanceController extends Controller
 {
     public $defaultAction = 'status';
 
-    public function actionEnable(
-        int $duration = null,
-        string $message = null,
+    // Options
+    public ?int $duration = null;
+    public ?string $message = null;
+
+    public function actionDisable(
         MaintenanceMode $maintenance,
     ): int {
-        $maintenance->enable($duration, $message);
+        $maintenance->disable();
+        $this->printStatus($maintenance);
+
+        return ExitCode::OK;
+    }
+
+    public function actionEnable(
+        MaintenanceMode $maintenance,
+    ): int {
+        $maintenance->enable($this->duration, $this->message);
         $this->printStatus($maintenance);
 
         return ExitCode::OK;
     }
 
     public function actionExtend(
-        int $duration,
         MaintenanceMode $maintenance,
     ): int {
-        $maintenance->extend($duration);
+        if (is_null($this->duration)) {
+            $this->stdout('--duration option is required.' . PHP_EOL, Console::FG_RED);
+            return ExitCode::IOERR;
+        }
+
+        $maintenance->extend($this->duration);
         $this->printStatus($maintenance);
 
         return ExitCode::OK;
@@ -43,13 +61,40 @@ class MaintenanceController extends Controller
     }
 
     public function actionUpdate(
-        string $message,
         MaintenanceMode $maintenance,
     ): int {
-        $maintenance->update($message);
+        if (is_null($this->message)) {
+            $this->stdout('--message option is required.' . PHP_EOL, Console::FG_RED);
+            return ExitCode::IOERR;
+        }
+
+        $maintenance->update($this->message);
         $this->printStatus($maintenance);
 
         return ExitCode::OK;
+    }
+
+    public function options($actionID)
+    {
+        $result = parent::options($actionID);
+
+        $extraOptions = [
+            'enable' => [
+                'duration',
+                'message',
+            ],
+            'extend' => [
+                'duration',
+            ],
+            'update' => [
+                'message',
+            ],
+        ];
+
+        return ArrayHelper::merge(
+            $result,
+            $extraOptions[$actionID ?? []]
+        );
     }
 
     protected function printStatus(MaintenanceMode $maintenanceMode): void

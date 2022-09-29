@@ -48,6 +48,32 @@ class SiteController extends \yii\web\Controller
 }
 ```
 
+## Usage
+
+To enable maintenance mode, run the `maintenance/enable` console command with optionally a duration and message.
+
+```
+src/yii maintenance/enable --message "We are performing maintenance." --duration 3600
+```
+
+To extend the duration of the maintenance mode use the `maintenance/extend` console command.
+
+```
+src/yii maintenance/extend --duration 3600
+```
+
+To add an update to the maintenance mode use the `maintenance/update` console command.
+
+```
+src/yii maintenance/update --message "Maintenance update"
+```
+
+To disable maintenance mode, run the `maintenance/disable` console command.
+
+```
+src/yii maintenance/disable
+```
+
 ## TODO
 - Add tests
 
