@@ -57,7 +57,7 @@ class MaintenanceMode implements BootstrapInterface
         $this->cache->delete(self::MAINTENANCE_MODE_MESSAGES);
     }
 
-    public function enable(int $duration = null, string $message = null): void
+    public function enable(int|null $duration = null, string|null $message = null): void
     {
         if ($this->cache->exists(self::MAINTENANCE_MODE)) {
             throw new InvalidCallException('Cannot activate Maintenance Mode when it is already active, use update if needed.');
